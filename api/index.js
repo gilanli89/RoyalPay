@@ -370,14 +370,85 @@ function dashboardLayout({ title, section, content }) {
       grid-template-columns: minmax(0,2.1fr) minmax(0,1.7fr);
       gap:14px;
     }
+
+    /* Tablet ve aşağısı */
     @media (max-width: 960px) {
-      .app-shell { margin: 16px 8px; flex-direction: column; }
-      .sidebar { width: 100%; flex-direction: row; align-items: center; gap: 14px; }
-      .nav-section-title { display:none; }
-      .nav-list { flex-direction: row; flex-wrap: wrap; }
-      .main { min-height: 60vh; }
-      .two-col { grid-template-columns:minmax(0,1fr); }
+      body {
+        align-items: flex-start;
+      }
+      .app-shell {
+        max-width: 100%;
+        width: 100%;
+        margin: 8px 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 12px;
+      }
+      .brand-sub {
+        display: none; /* slogani mobilde gizle */
+      }
+      .nav-section-title {
+        display: none; /* OVERVIEW / CONFIGURATION başlıklarını gizle */
+      }
+      .nav-list {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 4px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+      .nav-item {
+        flex: 0 0 auto;
+        font-size: 12px;
+        padding: 6px 10px;
+        justify-content: flex-start;
+      }
+
+      .topbar {
+        padding: 10px 12px 8px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+      .content {
+        padding: 12px;
+      }
+      .cards-row {
+        grid-template-columns: minmax(0,1fr); /* kartlar tek sütun */
+      }
+      .two-col {
+        grid-template-columns: minmax(0,1fr); /* soldaki-sağdaki kartlar alt alta */
+      }
     }
+
+    /* Küçük telefonlar (iPhone vs.) */
+    @media (max-width: 600px) {
+      .top-right {
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .merchant-pill {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .top-left-title {
+        font-size: 14px;
+      }
+      .card-value {
+        font-size: 16px;
+      }
+    }
+
   </style>
 </head>
 <body>
