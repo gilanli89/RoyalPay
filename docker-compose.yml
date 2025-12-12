@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  api:
+    build: ./api
+    container_name: royalpay-api
+    restart: always
+    env_file:
+      - ./api/.env.docker
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "3000:3000"
+    networks:
+      - royalpay-net
+
+  db:
+    image: postgres:15
+    container_name: royalpay-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: royalpay
+      POSTGRES_PASSWORD: royalpay
+      POSTGRES_DB: royalpay_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - royalpay-net
+
+  redis:
+    image: redis:7
+    container_name: royalpay-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - royalpay-net
+
+networks:
+  royalpay-net:
+
+volumes:
+  pgdata:
