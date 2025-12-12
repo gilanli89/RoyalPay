@@ -33,6 +33,26 @@ const MOCK_DATA = {
   balance: 845000.00 // Kullanılabilir Bakiye
 };
 
+const TRANSACTION_TABLE = [
+  {
+    datetime: '2025-02-03 18:18',
+    merchantName: 'Example Gaming Ltd.',
+    merchantOrder: '#EZX-1-47174807-181647-2772-1101',
+    amount: 1500,
+    fee: 60,
+    status: 'Succeeded',
+    method: 'HALKBANKPOS',
+    channel: 'Credit Card'
+  }
+];
+
+const TRY_FORMATTER = new Intl.NumberFormat('tr-TR', {
+  style: 'currency',
+  currency: 'TRY',
+});
+
+const formatTRY = (value) => TRY_FORMATTER.format(value).replace('TRY', 'TL');
+
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   
@@ -90,7 +110,7 @@ function LoginScreen({ onLogin }) {
 
 // --- 2. ANA DASHBOARD YAPISI ---
 function DashboardLayout({ onLogout }) {
-  const [activePage, setActivePage] = useState('dashboard');
+  const [activePage, setActivePage] = useState('transactions');
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Icons.Dashboard },
@@ -105,6 +125,7 @@ function DashboardLayout({ onLogout }) {
 
   const renderContent = () => {
     switch (activePage) {
+      case 'transactions': return <PageTransactions />;
       case 'dashboard': return <PageDashboard />;
       case 'reports': return <PageReports />;
       case 'cashout': return <PageCashout />;
@@ -176,6 +197,133 @@ function DashboardLayout({ onLogout }) {
 }
 
 // --- ALT SAYFALAR ---
+
+function StatusBadge({ status }) {
+  const styles = {
+    Succeeded: 'bg-green-900/30 text-green-400',
+    Failed: 'bg-red-900/30 text-red-400',
+    Pending: 'bg-yellow-900/30 text-yellow-400'
+  };
+
+  return (
+    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${styles[status] || 'bg-gray-800 text-gray-300'}`}>
+      {status}
+    </span>
+  );
+}
+
+// Transactions Page
+function PageTransactions() {
+  const totals = {
+    volume: 1786106.08,
+    cardVolume: 60123.08,
+    localMethods: 33480.45,
+    crypto: 0,
+  };
+
+  const settlementInsights = [
+    {
+      title: 'Settlement Amount',
+      value: '792.349,00 TL',
+      description: 'Last day of the current settlement cycle is 2025-Feb-24 (07:59).'
+    },
+    {
+      title: 'Settlement Volume Fee',
+      value: '0,00 TL',
+      description: 'Settlement fee is deducted from total volume and net balance is transferred.'
+    },
+    {
+      title: 'Settlement Total',
+      value: '752.051,17 TL',
+      description: 'You can only see settled records.'
+    },
+    {
+      title: 'Settlement Limit',
+      value: '6.000.000,00 TL',
+      description: 'The transactions over the amount will be placed on hold.'
+    }
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <h3 className="text-white text-xl font-bold">Transactions</h3>
+          <p className="text-gray-500 text-sm">Last refresh: Mon, Feb 03 18:03</p>
+        </div>
+        <div className="text-sm text-gray-400">
+          Current cycle settlement: <span className="text-[#EDB95E] font-semibold">9.768.106,08 TL</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-[#151A25] p-4 rounded-lg border border-gray-800">
+          <div className="text-xs text-gray-500 uppercase mb-1">Total volume</div>
+          <div className="text-white text-xl font-bold">{formatTRY(totals.volume)}</div>
+        </div>
+        <div className="bg-[#151A25] p-4 rounded-lg border border-gray-800">
+          <div className="text-xs text-gray-500 uppercase mb-1">Card acquiring</div>
+          <div className="text-white text-xl font-bold">{formatTRY(totals.cardVolume)}</div>
+        </div>
+        <div className="bg-[#151A25] p-4 rounded-lg border border-gray-800">
+          <div className="text-xs text-gray-500 uppercase mb-1">Local methods</div>
+          <div className="text-white text-xl font-bold">{formatTRY(totals.localMethods)}</div>
+        </div>
+        <div className="bg-[#151A25] p-4 rounded-lg border border-gray-800">
+          <div className="text-xs text-gray-500 uppercase mb-1">Crypto</div>
+          <div className="text-white text-xl font-bold">{formatTRY(totals.crypto)}</div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {settlementInsights.map((item) => (
+          <div key={item.title} className="bg-[#151A25] p-5 rounded-lg border border-gray-800">
+            <div className="text-gray-400 text-sm mb-1">{item.title}</div>
+            <div className="text-white text-2xl font-bold mb-2">{item.value}</div>
+            <p className="text-gray-500 text-xs leading-relaxed">{item.description}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-[#151A25] rounded-xl border border-gray-800 overflow-hidden">
+        <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+          <div>
+            <div className="text-white font-bold">Transactions</div>
+            <div className="text-xs text-gray-500">2024-Jul 17, 23:59 - Mar 31, 23:59</div>
+          </div>
+          <div className="text-xs text-gray-500">Limited to 100 records</div>
+        </div>
+
+        <table className="w-full text-left text-sm">
+          <thead className="bg-[#1F2532] text-gray-400">
+            <tr>
+              <th className="p-4">Date / Time</th>
+              <th className="p-4">Merchant Name</th>
+              <th className="p-4">Merchant Order No</th>
+              <th className="p-4">Amount</th>
+              <th className="p-4">Transaction fee</th>
+              <th className="p-4">Status</th>
+              <th className="p-4">Method & Channel</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-800">
+            {TRANSACTION_TABLE.map((tx) => (
+              <tr key={tx.merchantOrder} className="text-gray-300 hover:bg-[#1F2532]">
+                <td className="p-4 whitespace-nowrap">{tx.datetime}</td>
+                <td className="p-4">{tx.merchantName}</td>
+                <td className="p-4 font-mono text-xs">{tx.merchantOrder}</td>
+                <td className="p-4">{formatTRY(tx.amount)}</td>
+                <td className="p-4">{formatTRY(tx.fee)}</td>
+                <td className="p-4"><StatusBadge status={tx.status} /></td>
+                <td className="p-4">{tx.method}<br/><span className="text-gray-500 text-xs">{tx.channel}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 
 // 1. DASHBOARD OVERVIEW
 function PageDashboard() {
