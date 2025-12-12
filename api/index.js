@@ -8,69 +8,12 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 /**
- * Basit dil seçici
- * ?lang=tr -> 'tr', aksi halde 'en'
- */
-function getLang(req) {
-  return req.query.lang === 'tr' ? 'tr' : 'en';
-}
-
-/**
- * UI metinleri (EN / TR)
- */
-const uiText = {
-  en: {
-    htmlLang: 'en',
-    brandSub: 'Settlement & compliance rails for regulated gaming.',
-    sectionOverview: 'Overview',
-    sectionConfig: 'Configuration',
-    menu: {
-      dashboard: 'Dashboard',
-      transactions: 'Transactions',
-      reports: 'Reports',
-      cashout: 'Cashout',
-      api: 'API & Webhooks',
-      risk: 'Risk & Limits',
-      settings: 'Settings',
-      support: 'Support',
-    },
-    localSandboxLabel: 'Local sandbox • Port',
-    kycApproved: 'KYC approved',
-    logout: 'Logout',
-    footer: 'Sandbox v0.1',
-  },
-  tr: {
-    htmlLang: 'tr',
-    brandSub: 'Düzenlenmiş oyun operatörleri için ödeme ve uyum altyapısı.',
-    sectionOverview: 'Genel bakış',
-    sectionConfig: 'Yapılandırma',
-    menu: {
-      dashboard: 'Ana panel',
-      transactions: 'İşlemler',
-      reports: 'Raporlar',
-      cashout: 'Çekimler',
-      api: 'API & Webhooklar',
-      risk: 'Risk & Limitler',
-      settings: 'Ayarlar',
-      support: 'Destek',
-    },
-    localSandboxLabel: 'Lokal sandbox • Port',
-    kycApproved: 'KYC onaylı',
-    logout: 'Çıkış',
-    footer: 'Sandbox v0.1',
-  },
-};
-
-/**
  * Dashboard layout
- * section: hangi menünün aktif olacağını belirleyen string
- *          (dashboard, tx, reports, cashout, api, risk, settings, support)
+ * section: hangi menünün aktif olacağını belirleyen string (dashboard, tx, reports, cashout, api, risk, settings, support)
  */
-function dashboardLayout({ title, section, content, lang = 'en' }) {
-  const t = uiText[lang] || uiText.en;
-
+function dashboardLayout({ title, section, content }) {
   return `<!DOCTYPE html>
-<html lang="${t.htmlLang}">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>${title}</title>
@@ -149,9 +92,8 @@ function dashboardLayout({ title, section, content, lang = 'en' }) {
       cursor: pointer;
       text-decoration: none;
       display: flex;
-      justify-content: flex-start;
+      justify-content: space-between;
       align-items: center;
-      gap: 10px;
       border: 1px solid transparent;
     }
     .nav-item span {
@@ -173,45 +115,6 @@ function dashboardLayout({ title, section, content, lang = 'en' }) {
       margin-top: auto;
       font-size: 11px;
       opacity: 0.6;
-    }
-
-    /* Icons */
-    .nav-icon {
-      font-size: 15px;
-      width: 20px;
-      display: inline-block;
-    }
-
-    /* Dil seçici */
-    .lang-selector {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-right: 12px;
-      padding: 5px 10px;
-      background: rgba(7, 11, 30, 0.6);
-      border: 1px solid rgba(120, 130, 200, 0.3);
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-    .lang-opt {
-      text-decoration: none;
-      color: #fff;
-      opacity: 0.4;
-      transition: opacity 0.2s;
-      cursor: pointer;
-    }
-    .lang-opt:hover {
-      opacity: 1;
-    }
-    .lang-opt.active {
-      opacity: 1;
-      color: #f5d06f;
-    }
-    .lang-sep {
-      opacity: 0.2;
-      font-weight: 300;
     }
 
     /* Main area */
@@ -238,6 +141,7 @@ function dashboardLayout({ title, section, content, lang = 'en' }) {
       font-size: 11px;
       opacity: 0.7;
     }
+
     .top-right {
       display: flex;
       align-items: center;
@@ -268,10 +172,7 @@ function dashboardLayout({ title, section, content, lang = 'en' }) {
       opacity: 0.75;
       text-decoration: none;
     }
-    .logout-link:hover {
-      opacity: 1;
-      text-decoration: underline;
-    }
+    .logout-link:hover { opacity: 1; text-decoration: underline; }
 
     .content {
       padding: 18px 20px 20px;
@@ -484,72 +385,32 @@ function dashboardLayout({ title, section, content, lang = 'en' }) {
     <aside class="sidebar">
       <div class="brand">
         <div class="brand-title">ROYALPAY</div>
-        <div class="brand-sub">${t.brandSub}</div>
+        <div class="brand-sub">Settlement & compliance rails for regulated gaming.</div>
       </div>
 
       <div>
-        <div class="nav-section-title">${t.sectionOverview}</div>
+        <div class="nav-section-title">Overview</div>
         <ul class="nav-list">
-          <li>
-            <a href="/dashboard?lang=${lang}" class="nav-item ${section === 'dashboard' ? 'active' : ''}">
-              <span class="nav-icon">🏠</span>
-              <span class="nav-label">${t.menu.dashboard}</span>
-            </a>
-          </li>
-          <li>
-            <a href="/transactions?lang=${lang}" class="nav-item ${section === 'tx' ? 'active' : ''}">
-              <span class="nav-icon">💳</span>
-              <span class="nav-label">${t.menu.transactions}</span>
-            </a>
-          </li>
-          <li>
-            <a href="/reports?lang=${lang}" class="nav-item ${section === 'reports' ? 'active' : ''}">
-              <span class="nav-icon">📊</span>
-              <span class="nav-label">${t.menu.reports}</span>
-            </a>
-          </li>
-          <li>
-            <a href="/cashout?lang=${lang}" class="nav-item ${section === 'cashout' ? 'active' : ''}">
-              <span class="nav-icon">💸</span>
-              <span class="nav-label">${t.menu.cashout}</span>
-            </a>
-          </li>
+          <li><a href="/dashboard" class="nav-item ${section === 'dashboard' ? 'active' : ''}"><span>Dashboard</span></a></li>
+          <li><a href="/transactions" class="nav-item ${section === 'tx' ? 'active' : ''}"><span>Transactions</span></a></li>
+          <li><a href="/reports" class="nav-item ${section === 'reports' ? 'active' : ''}"><span>Reports</span></a></li>
+          <li><a href="/cashout" class="nav-item ${section === 'cashout' ? 'active' : ''}"><span>Cashout</span></a></li>
         </ul>
       </div>
 
       <div>
-        <div class="nav-section-title">${t.sectionConfig}</div>
+        <div class="nav-section-title">Configuration</div>
         <ul class="nav-list">
-          <li>
-            <a href="/api?lang=${lang}" class="nav-item ${section === 'api' ? 'active' : ''}">
-              <span class="nav-icon">⚙️</span>
-              <span class="nav-label">${t.menu.api}</span>
-            </a>
-          </li>
-          <li>
-            <a href="/risk?lang=${lang}" class="nav-item ${section === 'risk' ? 'active' : ''}">
-              <span class="nav-icon">🛡️</span>
-              <span class="nav-label">${t.menu.risk}</span>
-            </a>
-          </li>
-          <li>
-            <a href="/settings?lang=${lang}" class="nav-item ${section === 'settings' ? 'active' : ''}">
-              <span class="nav-icon">🔧</span>
-              <span class="nav-label">${t.menu.settings}</span>
-            </a>
-          </li>
-          <li>
-            <a href="/support?lang=${lang}" class="nav-item ${section === 'support' ? 'active' : ''}">
-              <span class="nav-icon">❓</span>
-              <span class="nav-label">${t.menu.support}</span>
-            </a>
-          </li>
+          <li><a href="/api" class="nav-item ${section === 'api' ? 'active' : ''}"><span>API & Webhooks</span></a></li>
+          <li><a href="/risk" class="nav-item ${section === 'risk' ? 'active' : ''}"><span>Risk & Limits</span></a></li>
+          <li><a href="/settings" class="nav-item ${section === 'settings' ? 'active' : ''}"><span>Settings</span></a></li>
+          <li><a href="/support" class="nav-item ${section === 'support' ? 'active' : ''}"><span>Support</span></a></li>
         </ul>
       </div>
 
       <div class="sidebar-footer">
         <div>RoyalPay by RoyalTech</div>
-        <div style="opacity:0.6;">${t.footer}</div>
+        <div style="opacity:0.6;">Sandbox v0.1</div>
       </div>
     </aside>
 
@@ -557,22 +418,17 @@ function dashboardLayout({ title, section, content, lang = 'en' }) {
       <header class="topbar">
         <div>
           <div class="top-left-title">${title}</div>
-          <div class="top-left-sub">${t.localSandboxLabel} ${PORT}</div>
+          <div class="top-left-sub">Local sandbox • Port ${PORT}</div>
         </div>
         <div class="top-right">
-          <div class="lang-selector">
-            <a href="?lang=tr" class="lang-opt ${lang === 'tr' ? 'active' : ''}">TR</a>
-            <span class="lang-sep">|</span>
-            <a href="?lang=en" class="lang-opt ${lang === 'en' ? 'active' : ''}">EN</a>
-          </div>
           <div class="merchant-pill">
             <div>
               <div class="merchant-name">Example Gaming Ltd.</div>
               <div style="font-size:10px; opacity:0.7;">Merchant ID: mrc_test_12345</div>
             </div>
-            <span class="badge-ok">${t.kycApproved}</span>
+            <span class="badge-ok">KYC approved</span>
           </div>
-          <a href="/login?lang=${lang}" class="logout-link">${t.logout}</a>
+          <a href="/login" class="logout-link">Logout</a>
         </div>
       </header>
       <section class="content">
@@ -584,44 +440,10 @@ function dashboardLayout({ title, section, content, lang = 'en' }) {
 </html>`;
 }
 
-/**
- * Basit sayfa iskeleti oluşturucu
- * Yeni sekmeler için tekrarlı HTML yazmamak adına kullanılır.
- */
-function renderSectionPage({ title, subtitle, section, lang, cards = [] }) {
-  const cardsHtml = cards.length
-    ? `<div class="cards-row">
-        ${cards
-          .map(
-            (c) => `
-              <div class="card">
-                <div class="card-title">${c.title}</div>
-                <div class="card-value">${c.value}</div>
-                <div class="card-sub">${c.sub}</div>
-              </div>`
-          )
-          .join('')}
-      </div>`
-    : '';
-
-  const content = `
-    <h1>${title}</h1>
-    <p class="subtitle">${subtitle}</p>
-    ${cardsHtml}
-    <div class="card">
-      <div class="card-title">Sandbox notice</div>
-      <div class="card-sub">Static demo content. Use navigation links to switch sections without tam sayfa yenilemesi.</div>
-    </div>
-  `;
-
-  return dashboardLayout({ title, section, content, lang });
-}
-
 /** Simple auth-style layout for login/register */
-function authLayout({ title, content, lang = 'en' }) {
-  const t = uiText[lang] || uiText.en;
+function authLayout({ title, content }) {
   return `<!DOCTYPE html>
-<html lang="${t.htmlLang}">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>${title}</title>
@@ -724,142 +546,600 @@ function authLayout({ title, content, lang = 'en' }) {
 
 // Root -> dashboard
 app.get('/', (req, res) => {
-  const lang = getLang(req);
-  res.redirect(`/dashboard?lang=${lang}`);
+  res.redirect('/dashboard');
 });
 
 // Dashboard
 app.get('/dashboard', (req, res) => {
-  const lang = getLang(req);
   const content = `
     <div class="status-chip">
       <span class="dot"></span><span>API is online</span>
     </div>
     <h1>Overview dashboard</h1>
-    <p class="subtitle">High-level snapshot of today's performance for Example Gaming Ltd.</p>
-    <!-- içerik aynı, demo data -->
+    <p class="subtitle">High-level snapshot of today&#39;s performance for Example Gaming Ltd.</p>
+
+    <div class="cards-row">
+      <div class="card">
+        <div class="card-title">Today volume</div>
+        <div class="card-value">€ 42,500</div>
+        <div class="card-sub">Across 1,284 successful transactions</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Approval rate</div>
+        <div class="card-value">96.4%</div>
+        <div class="card-sub">Declines reduced vs. 7-day average</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Current wallet balance</div>
+        <div class="card-value">€ 68,900</div>
+        <div class="card-sub">Ready for next settlement / cashout</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Open cashouts</div>
+        <div class="card-value">3</div>
+        <div class="card-sub">Expected completion T+1</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="section-title">Today&#39;s traffic</div>
+        <div class="section-sub">Distribution of successful vs failed / pending transactions (dummy data).</div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Count</th>
+              <th>Volume</th>
+              <th>Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Deposits</td>
+              <td>980</td>
+              <td>€ 37,200</td>
+              <td>87.5%</td>
+            </tr>
+            <tr>
+              <td>Withdrawals</td>
+              <td>210</td>
+              <td>€ 9,600</td>
+              <td>22.6%</td>
+            </tr>
+            <tr>
+              <td>Adjustments / refunds</td>
+              <td>14</td>
+              <td>€ -4,300</td>
+              <td>-9.1%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Quick navigation</div>
+        <div class="section-sub">Jump into key operational views.</div>
+        <div class="cards-row" style="grid-template-columns:1fr;">
+          <div class="card" style="background:rgba(10,16,48,0.95);">
+            <div class="card-title">Transactions</div>
+            <div class="card-sub" style="margin-bottom:6px;">Inspect today&#39;s transaction list with filters.</div>
+            <a href="/transactions" class="btn btn-primary" style="text-decoration:none; margin-top:4px; display:inline-flex;">Open transactions</a>
+          </div>
+          <div class="card" style="background:rgba(10,16,48,0.95);">
+            <div class="card-title">Cashout</div>
+            <div class="card-sub" style="margin-bottom:6px;">Request a payout from your wallet balance.</div>
+            <a href="/cashout" class="btn btn-ghost" style="text-decoration:none; margin-top:4px; display:inline-flex;">Go to cashout</a>
+          </div>
+        </div>
+      </div>
+    </div>
   `;
-  res.send(dashboardLayout({ title: 'Dashboard', section: 'dashboard', content, lang }));
+  res.send(dashboardLayout({ title: 'Dashboard', section: 'dashboard', content }));
 });
 
 // Transactions
 app.get('/transactions', (req, res) => {
-  const lang = getLang(req);
   const content = `
     <h1>Transactions</h1>
-    <p class="subtitle">View and filter today's transaction activity. Data below is sample sandbox data.</p>
-    <!-- demo tablo vs (orijinal içerik buraya geri konur) -->
+    <p class="subtitle">View and filter today&#39;s transaction activity. Data below is sample sandbox data.</p>
+
+    <div class="cards-row">
+      <div class="card">
+        <div class="card-title">Today volume</div>
+        <div class="card-value">€ 42,500</div>
+        <div class="card-sub">1,284 total transactions</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Success rate</div>
+        <div class="card-value">96.4%</div>
+        <div class="card-sub">Failed: 46 • Pending: 12</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Chargebacks</div>
+        <div class="card-value">0.21%</div>
+        <div class="card-sub">Rolling 30-day window</div>
+      </div>
+    </div>
+
+    <div class="filters-row">
+      <div class="filter-pill">Date: Today</div>
+      <div class="filter-pill">Type: All</div>
+      <div class="filter-pill">Status: All</div>
+      <div class="filter-pill">Currency: EUR</div>
+    </div>
+
+    <div class="card">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Txn ID</th>
+            <th>Player</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Method</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>09:12</td>
+            <td>tx_001234</td>
+            <td>player_8891</td>
+            <td>Deposit</td>
+            <td>€ 120.00</td>
+            <td><span class="status-badge success">Completed</span></td>
+            <td>Card</td>
+          </tr>
+          <tr>
+            <td>09:27</td>
+            <td>tx_001235</td>
+            <td>player_9042</td>
+            <td>Withdrawal</td>
+            <td>€ 60.00</td>
+            <td><span class="status-badge pending">Pending</span></td>
+            <td>Bank transfer</td>
+          </tr>
+          <tr>
+            <td>09:41</td>
+            <td>tx_001236</td>
+            <td>player_1134</td>
+            <td>Deposit</td>
+            <td>€ 250.00</td>
+            <td><span class="status-badge failed">Failed</span></td>
+            <td>Card</td>
+          </tr>
+          <tr>
+            <td>10:05</td>
+            <td>tx_001237</td>
+            <td>player_2278</td>
+            <td>Deposit</td>
+            <td>€ 80.00</td>
+            <td><span class="status-badge success">Completed</span></td>
+            <td>Crypto</td>
+          </tr>
+          <tr>
+            <td>10:18</td>
+            <td>tx_001238</td>
+            <td>player_4482</td>
+            <td>Refund</td>
+            <td>€ -40.00</td>
+            <td><span class="status-badge success">Completed</span></td>
+            <td>Adjustment</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="hint" style="margin-top:8px;">In a real integration this table would be fed by your Postgres transaction log with server-side filtering & pagination.</div>
+    </div>
   `;
-  res.send(dashboardLayout({ title: 'Transactions', section: 'tx', content, lang }));
+  res.send(dashboardLayout({ title: 'Transactions', section: 'tx', content }));
 });
 
 // Reports
 app.get('/reports', (req, res) => {
-  const lang = getLang(req);
-  res.send(
-    renderSectionPage({
-      title: 'Reports',
-      subtitle: 'Export payout and transaction summaries for finance and compliance teams.',
-      section: 'reports',
-      lang,
-      cards: [
-        { title: 'Reconciliation ready', value: '12 files', sub: 'Daily and monthly exports prepared' },
-        { title: 'Pending settlements', value: '₺752.051,17', sub: 'Awaiting next payout window' },
-        { title: 'Chargeback rate', value: '0.21%', sub: 'Last 30 days' },
-      ],
-    })
-  );
+  const content = `
+    <h1>Reports</h1>
+    <p class="subtitle">Summary KPIs for your chosen period. Below is static demo data for the sandbox environment.</p>
+
+    <div class="cards-row">
+      <div class="card">
+        <div class="card-title">Last 7 days volume</div>
+        <div class="card-value">€ 286,400</div>
+        <div class="card-sub">Up 12.4% vs previous week</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Net settlement</div>
+        <div class="card-value">€ 74,900</div>
+        <div class="card-sub">After fees and adjustments</div>
+      </div>
+      <div class="card">
+        <div class="card-title">RoyalPay fee share</div>
+        <div class="card-value">€ 6,420</div>
+        <div class="card-sub">Based on blended fee structure</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Chargeback ratio</div>
+        <div class="card-value">0.18%</div>
+        <div class="card-sub">Within agreed risk thresholds</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Period selection</div>
+      <div class="section-sub">When wired to the backend, this view will support exporting CSV / PDF reports for your finance team.</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>From</label>
+          <input type="date" />
+        </div>
+        <div class="field">
+          <label>To</label>
+          <input type="date" />
+        </div>
+        <div class="field">
+          <label>Grouping</label>
+          <select>
+            <option>Daily</option>
+            <option>Weekly</option>
+            <option>Monthly</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Export format</label>
+          <select>
+            <option>On-screen summary</option>
+            <option>CSV</option>
+            <option>PDF</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" type="button">Update report (demo)</button>
+        <button class="btn btn-ghost" type="button">Export (demo)</button>
+      </div>
+    </div>
+  `;
+  res.send(dashboardLayout({ title: 'Reports', section: 'reports', content }));
 });
 
 // Cashout
 app.get('/cashout', (req, res) => {
-  const lang = getLang(req);
-  res.send(
-    renderSectionPage({
-      title: 'Cashout',
-      subtitle: 'Initiate settlements to your designated bank or USDT wallets.',
-      section: 'cashout',
-      lang,
-      cards: [
-        { title: 'Available to withdraw', value: '$845,000.00', sub: 'Ready for same-day payout' },
-        { title: 'Last cashout', value: '02 Feb, 14:22', sub: 'Processed to TRC20 wallet' },
-      ],
-    })
-  );
+  const content = `
+    <h1>Cashout</h1>
+    <p class="subtitle">Request a payout from your RoyalPay wallet balance to your bank or crypto account.</p>
+
+    <div class="cards-row">
+      <div class="card">
+        <div class="card-title">Available balance</div>
+        <div class="card-value">€ 68,900</div>
+        <div class="card-sub">EUR settlement wallet</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Pending cashouts</div>
+        <div class="card-value">3</div>
+        <div class="card-sub">Total: € 24,000 in progress</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="section-title">New cashout request</div>
+        <div class="section-sub">Sandbox-only UX. Submission does not move real funds.</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Amount</label>
+            <input type="number" placeholder="25000" />
+            <div class="hint">Minimum € 1,000 per cashout.</div>
+          </div>
+          <div class="field">
+            <label>Destination</label>
+            <select>
+              <option>Bank account (EUR IBAN)</option>
+              <option>Bank account (GBP)</option>
+              <option>Crypto wallet (USDT)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Reference</label>
+            <input type="text" placeholder="January settlement" />
+          </div>
+          <div class="field">
+            <label>Notify finance team</label>
+            <select>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" type="button">Submit cashout (demo)</button>
+          <span class="hint">In production this would create a settlement order against your wallet balance.</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Recent cashouts</div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th><th>Amount</th><th>Destination</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2025-12-10</td>
+              <td>€ 15,000</td>
+              <td>Bank • CYxx 1234</td>
+              <td><span class="status-badge success">Completed</span></td>
+            </tr>
+            <tr>
+              <td>2025-12-09</td>
+              <td>€ 6,000</td>
+              <td>USDT wallet</td>
+              <td><span class="status-badge success">Completed</span></td>
+            </tr>
+            <tr>
+              <td>2025-12-08</td>
+              <td>€ 3,000</td>
+              <td>Bank • CYxx 5678</td>
+              <td><span class="status-badge pending">Pending</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  res.send(dashboardLayout({ title: 'Cashout', section: 'cashout', content }));
 });
 
 // API & Webhooks
 app.get('/api', (req, res) => {
-  const lang = getLang(req);
-  res.send(
-    renderSectionPage({
-      title: 'API & Webhooks',
-      subtitle: 'Manage keys, webhook endpoints, and integration checklists.',
-      section: 'api',
-      lang,
-      cards: [
-        { title: 'Live public key', value: 'pk_live_51MzQ2K…', sub: 'Use for client-side tokenization' },
-        { title: 'Webhook status', value: 'Active', sub: 'Last delivery 2 min ago' },
-      ],
-    })
-  );
+  const content = `
+    <h1>API & Webhooks</h1>
+    <p class="subtitle">Developer-facing settings for integrating RoyalPay into your cashier and back-office.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="section-title">API keys</div>
+        <div class="section-sub">In production these values would be unique per merchant and environment.</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Publishable key</label>
+            <input type="text" value="pk_test_royalpay_public_123456789" readonly />
+            <div class="hint">Safe to use in front-end integrations.</div>
+          </div>
+          <div class="field">
+            <label>Secret key</label>
+            <input type="text" value="sk_test_royalpay_secret_987654321" readonly />
+            <div class="hint">Keep this secret; server-side only.</div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-ghost" type="button">Rotate keys (demo)</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Webhook configuration</div>
+        <div class="section-sub">RoyalPay notifies your platform about payment and settlement events.</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Webhook URL</label>
+            <input type="text" value="https://examplegaming.com/royalpay/webhook" />
+          </div>
+          <div class="field">
+            <label>Signing secret</label>
+            <input type="text" value="whsec_test_123456789" readonly />
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" type="button">Send test event (demo)</button>
+          <span class="hint">Example: payment.completed, payment.failed, settlement.created …</span>
+        </div>
+      </div>
+    </div>
+  `;
+  res.send(dashboardLayout({ title: 'API & Webhooks', section: 'api', content }));
 });
 
 // Risk & Limits
 app.get('/risk', (req, res) => {
-  const lang = getLang(req);
-  res.send(
-    renderSectionPage({
-      title: 'Risk & Limits',
-      subtitle: 'Configure velocity rules, card limits, and fraud controls.',
-      section: 'risk',
-      lang,
-      cards: [
-        { title: 'Daily volume cap', value: '$2,000,000', sub: '62% used today' },
-        { title: 'Chargeback threshold', value: '0.35%', sub: 'Alert at 0.30%' },
-      ],
-    })
-  );
+  const content = `
+    <h1>Risk & limits</h1>
+    <p class="subtitle">Configure basic risk controls and velocity limits for your merchant account.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="section-title">Transaction limits</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Max single transaction amount</label>
+            <input type="number" value="2500" />
+            <div class="hint">RoyalPay will automatically decline larger attempts.</div>
+          </div>
+          <div class="field">
+            <label>Daily volume cap</label>
+            <input type="number" value="100000" />
+          </div>
+          <div class="field">
+            <label>Max tx per minute (velocity)</label>
+            <input type="number" value="60" />
+          </div>
+          <div class="field">
+            <label>Auto-freeze if chargeback ratio above</label>
+            <input type="number" value="1.5" />
+            <div class="hint">Percentage over rolling 30-day window.</div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" type="button">Save limits (demo)</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Risk engine notes</div>
+        <div class="section-sub">In a full implementation this page would connect to:</div>
+        <ul class="hint" style="margin-left:16px; display:grid; gap:4px;">
+          <li>Device fingerprinting & IP reputation scoring</li>
+          <li>Sanctions / PEP screening results</li>
+          <li>Rule-based blocking (BINs, regions, MCCs)</li>
+          <li>Machine-learning fraud scores per transaction</li>
+        </ul>
+      </div>
+    </div>
+  `;
+  res.send(dashboardLayout({ title: 'Risk & limits', section: 'risk', content }));
 });
 
 // Settings
 app.get('/settings', (req, res) => {
-  const lang = getLang(req);
-  res.send(
-    renderSectionPage({
-      title: 'Settings',
-      subtitle: 'Update company info, contacts, and localization preferences.',
-      section: 'settings',
-      lang,
-      cards: [
-        { title: 'Company', value: 'Example Gaming Ltd.', sub: 'KYC approved' },
-        { title: 'Timezone', value: 'UTC', sub: 'Override per user if needed' },
-      ],
-    })
-  );
+  const content = `
+    <h1>Settings</h1>
+    <p class="subtitle">Basic merchant profile and team settings for the RoyalPay sandbox.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="section-title">Merchant profile</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Legal entity name</label>
+            <input type="text" value="Example Gaming Ltd." />
+          </div>
+          <div class="field">
+            <label>Trading name</label>
+            <input type="text" value="ExampleGaming" />
+          </div>
+          <div class="field">
+            <label>Primary contact email</label>
+            <input type="email" value="ops@examplegaming.com" />
+          </div>
+          <div class="field">
+            <label>Timezone</label>
+            <select><option>UTC+2 (Cyprus)</option><option>UTC</option><option>UTC+3</option></select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" type="button">Save profile (demo)</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Team access</div>
+        <div class="section-sub">Example users with access to this merchant.</div>
+        <table class="table">
+          <thead>
+            <tr><th>Name</th><th>Role</th><th>Email</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Sinan G.</td><td>Owner</td><td>sinan@examplegaming.com</td></tr>
+            <tr><td>Naşide T.</td><td>Finance</td><td>naside@examplegaming.com</td></tr>
+            <tr><td>Halil K.</td><td>Tech</td><td>halil@examplegaming.com</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  res.send(dashboardLayout({ title: 'Settings', section: 'settings', content }));
 });
 
 // Support
 app.get('/support', (req, res) => {
-  const lang = getLang(req);
-  res.send(
-    renderSectionPage({
-      title: 'Support',
-      subtitle: 'Reach our 24/7 merchant success team for operational issues.',
-      section: 'support',
-      lang,
-      cards: [
-        { title: 'Priority channel', value: 'Telegram @RoyalPaySupport', sub: 'Median SLA: 6 min' },
-        { title: 'Email', value: 'support@royalpay.io', sub: 'Follow the template for faster triage' },
-      ],
-    })
-  );
+  const content = `
+    <h1>Support</h1>
+    <p class="subtitle">How to reach the RoyalPay team during integration and operations.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="section-title">Contact channels</div>
+        <ul class="hint" style="margin-left:16px; display:grid; gap:4px; font-size:13px; opacity:0.85;">
+          <li>🟢 Slack: <strong>#royalpay-integration</strong></li>
+          <li>📧 Email: support@royalpay.test</li>
+          <li>📞 Phone (ops): +357 000 000</li>
+        </ul>
+        <div class="section-title" style="margin-top:14px;">Incident procedure</div>
+        <div class="section-sub">For outages or critical payment issues, escalation directly to on-call engineer and risk lead.</div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Send a message</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Subject</label>
+            <input type="text" placeholder="Settlement question" />
+          </div>
+          <div class="field">
+            <label>Urgency</label>
+            <select><option>Normal</option><option>High</option><option>Critical</option></select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Message</label>
+          <textarea rows="4" placeholder="Describe your question or issue…"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" type="button">Submit ticket (demo)</button>
+        </div>
+      </div>
+    </div>
+  `;
+  res.send(dashboardLayout({ title: 'Support', section: 'support', content }));
 });
 
-// (Diğer tüm route'larda da aynı patterni kullan:
-// const lang = getLang(req);
-// res.send(dashboardLayout({ ..., lang }));
-// Şu an uzunluğu şişirmemek için tamamını tekrar yazmıyorum ama mantık bu.)
+// Login
+app.get('/login', (req, res) => {
+  const content = `
+    <div class="title">Operator login</div>
+    <div class="subtitle">Sign in to access your RoyalPay dashboard, transactions and reports.</div>
+    <div class="field">
+      <label for="email">Work email</label>
+      <input id="email" type="email" placeholder="you@casino-operator.com" />
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="••••••••" />
+      <div class="hint">In this sandbox the form is visual only.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" type="button" onclick="window.location.href='/dashboard'">Sign in (demo)</button>
+      <div class="link-inline">No account? <a href="/register">Create a merchant</a></div>
+    </div>
+  `;
+  res.send(authLayout({ title: 'RoyalPay Login', content }));
+});
+
+// Register
+app.get('/register', (req, res) => {
+  const content = `
+    <div class="title">Register a new merchant</div>
+    <div class="subtitle">Create a sandbox merchant profile to explore the RoyalPay portal.</div>
+    <div class="field">
+      <label>Company / brand name</label>
+      <input type="text" placeholder="Example Gaming Ltd." />
+    </div>
+    <div class="field">
+      <label>Website</label>
+      <input type="text" placeholder="https://examplegaming.com" />
+    </div>
+    <div class="field">
+      <label>Contact email</label>
+      <input type="email" placeholder="ops@examplegaming.com" />
+    </div>
+    <div class="field">
+      <label>Base currency</label>
+      <select><option>EUR</option><option>USD</option><option>GBP</option></select>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" placeholder="Choose a secure password" />
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" type="button" onclick="window.location.href='/dashboard'">Create sandbox merchant</button>
+      <div class="link-inline">Already onboarded? <a href="/login">Back to login</a></div>
+    </div>
+  `;
+  res.send(authLayout({ title: 'RoyalPay Register', content }));
+});
 
 // Health JSON
 app.get('/health', (req, res) => {
