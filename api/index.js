@@ -584,6 +584,39 @@ function dashboardLayout({ title, section, content, lang = 'en' }) {
 </html>`;
 }
 
+/**
+ * Basit sayfa iskeleti oluşturucu
+ * Yeni sekmeler için tekrarlı HTML yazmamak adına kullanılır.
+ */
+function renderSectionPage({ title, subtitle, section, lang, cards = [] }) {
+  const cardsHtml = cards.length
+    ? `<div class="cards-row">
+        ${cards
+          .map(
+            (c) => `
+              <div class="card">
+                <div class="card-title">${c.title}</div>
+                <div class="card-value">${c.value}</div>
+                <div class="card-sub">${c.sub}</div>
+              </div>`
+          )
+          .join('')}
+      </div>`
+    : '';
+
+  const content = `
+    <h1>${title}</h1>
+    <p class="subtitle">${subtitle}</p>
+    ${cardsHtml}
+    <div class="card">
+      <div class="card-title">Sandbox notice</div>
+      <div class="card-sub">Static demo content. Use navigation links to switch sections without tam sayfa yenilemesi.</div>
+    </div>
+  `;
+
+  return dashboardLayout({ title, section, content, lang });
+}
+
 /** Simple auth-style layout for login/register */
 function authLayout({ title, content, lang = 'en' }) {
   const t = uiText[lang] || uiText.en;
@@ -718,6 +751,109 @@ app.get('/transactions', (req, res) => {
     <!-- demo tablo vs (orijinal içerik buraya geri konur) -->
   `;
   res.send(dashboardLayout({ title: 'Transactions', section: 'tx', content, lang }));
+});
+
+// Reports
+app.get('/reports', (req, res) => {
+  const lang = getLang(req);
+  res.send(
+    renderSectionPage({
+      title: 'Reports',
+      subtitle: 'Export payout and transaction summaries for finance and compliance teams.',
+      section: 'reports',
+      lang,
+      cards: [
+        { title: 'Reconciliation ready', value: '12 files', sub: 'Daily and monthly exports prepared' },
+        { title: 'Pending settlements', value: '₺752.051,17', sub: 'Awaiting next payout window' },
+        { title: 'Chargeback rate', value: '0.21%', sub: 'Last 30 days' },
+      ],
+    })
+  );
+});
+
+// Cashout
+app.get('/cashout', (req, res) => {
+  const lang = getLang(req);
+  res.send(
+    renderSectionPage({
+      title: 'Cashout',
+      subtitle: 'Initiate settlements to your designated bank or USDT wallets.',
+      section: 'cashout',
+      lang,
+      cards: [
+        { title: 'Available to withdraw', value: '$845,000.00', sub: 'Ready for same-day payout' },
+        { title: 'Last cashout', value: '02 Feb, 14:22', sub: 'Processed to TRC20 wallet' },
+      ],
+    })
+  );
+});
+
+// API & Webhooks
+app.get('/api', (req, res) => {
+  const lang = getLang(req);
+  res.send(
+    renderSectionPage({
+      title: 'API & Webhooks',
+      subtitle: 'Manage keys, webhook endpoints, and integration checklists.',
+      section: 'api',
+      lang,
+      cards: [
+        { title: 'Live public key', value: 'pk_live_51MzQ2K…', sub: 'Use for client-side tokenization' },
+        { title: 'Webhook status', value: 'Active', sub: 'Last delivery 2 min ago' },
+      ],
+    })
+  );
+});
+
+// Risk & Limits
+app.get('/risk', (req, res) => {
+  const lang = getLang(req);
+  res.send(
+    renderSectionPage({
+      title: 'Risk & Limits',
+      subtitle: 'Configure velocity rules, card limits, and fraud controls.',
+      section: 'risk',
+      lang,
+      cards: [
+        { title: 'Daily volume cap', value: '$2,000,000', sub: '62% used today' },
+        { title: 'Chargeback threshold', value: '0.35%', sub: 'Alert at 0.30%' },
+      ],
+    })
+  );
+});
+
+// Settings
+app.get('/settings', (req, res) => {
+  const lang = getLang(req);
+  res.send(
+    renderSectionPage({
+      title: 'Settings',
+      subtitle: 'Update company info, contacts, and localization preferences.',
+      section: 'settings',
+      lang,
+      cards: [
+        { title: 'Company', value: 'Example Gaming Ltd.', sub: 'KYC approved' },
+        { title: 'Timezone', value: 'UTC', sub: 'Override per user if needed' },
+      ],
+    })
+  );
+});
+
+// Support
+app.get('/support', (req, res) => {
+  const lang = getLang(req);
+  res.send(
+    renderSectionPage({
+      title: 'Support',
+      subtitle: 'Reach our 24/7 merchant success team for operational issues.',
+      section: 'support',
+      lang,
+      cards: [
+        { title: 'Priority channel', value: 'Telegram @RoyalPaySupport', sub: 'Median SLA: 6 min' },
+        { title: 'Email', value: 'support@royalpay.io', sub: 'Follow the template for faster triage' },
+      ],
+    })
+  );
 });
 
 // (Diğer tüm route'larda da aynı patterni kullan:
